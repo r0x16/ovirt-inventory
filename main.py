@@ -23,7 +23,7 @@ vms_service = connection.system_service().vms_service()
 clusters_service = connection.system_service().clusters_service()
 
 # Recuperar la lista de máquinas virtuales
-vms = vms_service.list(max=5)
+vms = vms_service.list()
 
 # Ruta del archivo CSV de salida
 csv_file = 'vms.csv'
