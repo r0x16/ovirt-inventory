@@ -1,5 +1,6 @@
 import csv
 import getpass
+import json
 from ovirtsdk4 import Connection
 
 # Establecer los detalles de conexión
@@ -22,8 +23,22 @@ vms_service = connection.system_service().vms_service()
 # Obtener una referencia al servicio de clústeres
 clusters_service = connection.system_service().clusters_service()
 
+# clusters = clusters_service.list()
+# print(clusters[0].__dict__)
+# quit()
+
 # Recuperar la lista de máquinas virtuales
 vms = vms_service.list()
+
+# Imprimir la información de las máquinas virtuales
+""" for vm in vms:
+    attachments = connection.follow_link(vm.disk_attachments)
+    for attachment in attachments:
+        disk = connection.follow_link(attachment.disk)
+        stdom = connection.follow_link(disk.storage_domains[0])
+        print(stdom.__dict__)
+
+quit() """
 
 # Ruta del archivo CSV de salida
 csv_file = 'vms.csv'
@@ -33,7 +48,7 @@ with open(csv_file, 'w', newline='') as file:
     writer = csv.writer(file)
 
     # Escribir la cabecera del archivo CSV
-    writer.writerow(['Nombre', 'Sistema Operativo', 'IP', 'CPU', 'RAM', 'VLAN', 'FQDN', 'Cluster', 'Uptime', 'Host'])
+    writer.writerow(['Nombre', 'Sistema Operativo', 'IP', 'CPU', 'RAM', 'VLAN', 'FQDN', 'Cluster', 'Uptime', 'Host', 'Disco', 'Total', 'Utilizado', 'Domain'])
 
     # Obtener y escribir la información de las máquinas virtuales en el archivo CSV
     for vm in vms:
@@ -88,7 +103,15 @@ with open(csv_file, 'w', newline='') as file:
         if vm.host:
             host = connection.follow_link(vm.host).name
 
-        writer.writerow([name, os, ip, cpu, ram, vlan, fqdn, cluster, uptime, host])
+        attachments = connection.follow_link(vm.disk_attachments)
+        for attachment in attachments:
+            disk = connection.follow_link(attachment.disk)
+            stdom = connection.follow_link(disk.storage_domains[0])
+            totalsize = int(disk.total_size / 1024 / 1024 /1024)
+            actualsize = int(disk.actual_size / 1024 / 1024 /1024)
+            writer.writerow([name, os, ip, cpu, ram, vlan, fqdn, cluster, uptime, host, disk.name, totalsize, actualsize, stdom.name])
+
+        
 
 # Cerrar la conexión
 connection.close()

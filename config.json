@@ -1,0 +1,8 @@
+{
+    "ovirt": {
+      "url": "https://HOSTNAME:PORT/ovirt-engine/api",
+      "username": "admin@internal",
+      "password": "YOUR_PASSWORD",
+      "ca_file": "./cert.pem"
+    }
+} 
